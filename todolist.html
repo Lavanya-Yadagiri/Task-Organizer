@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task Organizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #a8c0ff, #fbc2eb);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #4CAF50;
+            font-size: 2em;
+            letter-spacing: 1px;
+        }
+        .category-selector {
+            margin-bottom: 20px;
+        }
+        .category-selector select {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .category-selector select:focus {
+            border-color: #4CAF50;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-group input[type="text"] {
+            width: calc(100% - 90px);
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .input-group input[type="text"]:focus {
+            border-color: #4CAF50;
+        }
+        .input-group input[type="button"] {
+            width: 80px;
+            padding: 12px;
+            border: none;
+            background: #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .input-group input[type="button"]:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background: #f4f4f4;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        li:hover {
+            background: #e0e0e0;
+            transform: scale(1.02);
+        }
+        li:active {
+            background: #d1d1d1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Task Organizer</h1>
+    <div class="category-selector">
+        <select id="categorySelector" onchange="loadTasks()">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <input type="text" placeholder="Enter a task..." id="box">
+        <input type="button" value="Add" onclick="add_item()">
+    </div>
+    <ul id="list_item">
+    </ul>
+</div>
+<script type="text/javascript">
+    // Load tasks for the selected category from localStorage
+    function loadTasks() {
+        let selectedCategory = document.getElementById("categorySelector").value;
+        let list_item = document.getElementById("list_item");
+        list_item.innerHTML = ''; // Clear current list
+        let tasks = JSON.parse(localStorage.getItem(selectedCategory)) || [];
+        tasks.forEach(task => {
+            let make_li = document.createElement("li");
+            make_li.textContent = task;
+            list_item.appendChild(make_li);
+            make_li.onclick = function() {
+                this.style.opacity = '0';
+                setTimeout(() => this.remove(), 300); // Remove item after fade out
+                removeTask(selectedCategory, task);
+            };
+        });
+    }
+
+    // Add item and save to localStorage
+    function add_item() {
+        let item = document.getElementById("box");
+        let list_item = document.getElementById("list_item");
+        let selectedCategory = document.getElementById("categorySelector").value;
+        if (item.value.trim() !== "") {
+            let task = item.value.trim();
+            let make_li = document.createElement("li");
+            make_li.textContent = task;
+            list_item.appendChild(make_li);
+            item.value = "";
+            make_li.onclick = function() {
+                this.style.opacity = '0';
+                setTimeout(() => this.remove(), 300); // Remove item after fade out
+                removeTask(selectedCategory, task);
+            };
+            saveTask(selectedCategory, task);
+        } else {
+            alert("Please add a value to the item.");
+        }
+    }
+
+    // Save task to localStorage
+    function saveTask(category, task) {
+        let tasks = JSON.parse(localStorage.getItem(category)) || [];
+        tasks.push(task);
+        localStorage.setItem(category, JSON.stringify(tasks));
+    }
+
+    // Remove task from localStorage
+    function removeTask(category, task) {
+        let tasks = JSON.parse(localStorage.getItem(category)) || [];
+        tasks = tasks.filter(t => t !== task);
+        localStorage.setItem(category, JSON.stringify(tasks));
+    }
+
+    // Initialize by loading tasks for the default selected category
+    document.addEventListener("DOMContentLoaded", loadTasks);
+</script>
+</body>
+</html>
